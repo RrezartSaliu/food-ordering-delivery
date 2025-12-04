@@ -1,0 +1,46 @@
+#container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+#form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn {
+    border-radius: 13px;
+    width: 10em;
+    margin-top: 2em;
+    padding: 1cap;
+}
+
+.input-field {
+    border-radius: 13px;
+}
+
+#login-box {
+    width: 50vh;
+    height: 50vh;
+    border: 4px solid #d52d2d;
+    border-radius: 20px;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    position: relative
+}
+
+#login-box > :first-child {
+    position: absolute;
+    background-color: #d52d2d;
+    width: 100%;
+    height: 5vh;
+    top: 0;
+}

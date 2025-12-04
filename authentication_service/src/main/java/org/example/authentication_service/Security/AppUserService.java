@@ -32,6 +32,9 @@ public class AppUserService implements UserDetailsService {
 
 
     public String addCustomerUser (RegisterUserRequest registerUserRequest) {
+        if (authRepository.existsByEmail(registerUserRequest.getEmail())) {
+            return "Email Already Exists";
+        }
         AppUser appUser = new AppUser();
         appUser.setEmail(registerUserRequest.getEmail());
         appUser.setPassword(passwordEncoder.encode(registerUserRequest.getPassword()));
@@ -48,6 +51,9 @@ public class AppUserService implements UserDetailsService {
     }
 
     public String addDriverUser (RegisterDriverRequest registerDriverRequest) {
+        if (authRepository.existsByEmail(registerDriverRequest.getEmail())) {
+            return "Email Already Exists";
+        }
         AppUser appUser = new AppUser();
         appUser.setEmail(registerDriverRequest.getEmail());
         appUser.setPassword(passwordEncoder.encode(registerDriverRequest.getPassword()));
@@ -65,6 +71,9 @@ public class AppUserService implements UserDetailsService {
     }
 
     public String addRestaurantUser (RegisterRestaurantRequest registerRestaurantRequest) {
+        if (authRepository.existsByEmail(registerRestaurantRequest.getEmail())) {
+            return "Email Already Exists";
+        }
         AppUser appUser = new AppUser();
         appUser.setEmail(registerRestaurantRequest.getEmail());
         appUser.setPassword(passwordEncoder.encode(registerRestaurantRequest.getPassword()));
