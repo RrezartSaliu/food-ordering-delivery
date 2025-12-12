@@ -1,5 +1,7 @@
 package org.example.authentication_service.Security;
 
+import lombok.RequiredArgsConstructor;
+import org.example.UserRegisteredEvent;
 import org.example.authentication_service.Domain.DTO.RegisterDriverRequest;
 import org.example.authentication_service.Domain.DTO.RegisterRestaurantRequest;
 import org.example.authentication_service.Domain.DTO.RegisterUserRequest;
@@ -8,6 +10,9 @@ import org.example.authentication_service.Repository.AuthRepository;
 import org.example.authentication_service.Repository.CustomerUserRepository;
 import org.example.authentication_service.Repository.DriverUserRepository;
 import org.example.authentication_service.Repository.RestaurantUserRepository;
+import org.example.authentication_service.Util.RabbitConfig;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,31 +20,26 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AppUserService implements UserDetailsService {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
     private final CustomerUserRepository customerUserRepository;
     private final RestaurantUserRepository restaurantUserRepository;
     private final DriverUserRepository driverUserRepository;
-
-    public AppUserService(AuthRepository authRepository, PasswordEncoder passwordEncoder, CustomerUserRepository customerUserRepository, RestaurantUserRepository restaurantUserRepository, DriverUserRepository driverUserRepository) {
-        this.authRepository = authRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.customerUserRepository = customerUserRepository;
-        this.restaurantUserRepository = restaurantUserRepository;
-        this.driverUserRepository = driverUserRepository;
-    }
-
+    private final RabbitTemplate rabbitTemplate;
 
     public String addCustomerUser (RegisterUserRequest registerUserRequest) {
         if (authRepository.existsByEmail(registerUserRequest.getEmail())) {
             return "Email Already Exists";
         }
+
         AppUser appUser = new AppUser();
         appUser.setEmail(registerUserRequest.getEmail());
         appUser.setPassword(passwordEncoder.encode(registerUserRequest.getPassword()));
         appUser.setRole(Role.ROLE_USER);
         AppUser savedUser = authRepository.save(appUser);
+
 
         CustomerProfile customerProfile = new CustomerProfile();
         customerProfile.setFirstName(registerUserRequest.getFirstName());
@@ -47,13 +47,14 @@ public class AppUserService implements UserDetailsService {
         customerProfile.setId(savedUser.getId());
         customerProfile.setAppUser(savedUser);
         customerUserRepository.save(customerProfile);
+
+        UserRegisteredEvent event = new UserRegisteredEvent(customerProfile.getFirstName(), savedUser.getEmail());
+        rabbitTemplate.convertAndSend(RabbitConfig.USER_REGISTERED_QUEUE, event);
+
         return "CustomerUser added successfully";
     }
 
     public String addDriverUser (RegisterDriverRequest registerDriverRequest) {
-        if (authRepository.existsByEmail(registerDriverRequest.getEmail())) {
-            return "Email Already Exists";
-        }
         AppUser appUser = new AppUser();
         appUser.setEmail(registerDriverRequest.getEmail());
         appUser.setPassword(passwordEncoder.encode(registerDriverRequest.getPassword()));
@@ -71,15 +72,16 @@ public class AppUserService implements UserDetailsService {
     }
 
     public String addRestaurantUser (RegisterRestaurantRequest registerRestaurantRequest) {
-        if (authRepository.existsByEmail(registerRestaurantRequest.getEmail())) {
-            return "Email Already Exists";
-        }
         AppUser appUser = new AppUser();
         appUser.setEmail(registerRestaurantRequest.getEmail());
         appUser.setPassword(passwordEncoder.encode(registerRestaurantRequest.getPassword()));
         appUser.setRole(Role.ROLE_RESTAURANT);
-        AppUser savedUser = authRepository.save(appUser);
-
+        AppUser savedUser;
+        try {
+            savedUser = authRepository.save(appUser);
+        }catch (DataIntegrityViolationException e) {
+            return e.getMessage();
+        }
         RestaurantProfile restaurantProfile = new RestaurantProfile();
         restaurantProfile.setAppUser(savedUser);
         restaurantProfile.setId(savedUser.getId());

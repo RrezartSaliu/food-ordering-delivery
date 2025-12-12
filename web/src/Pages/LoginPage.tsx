@@ -2,12 +2,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import '../style/AuthFormPages.css'
 import { useState } from 'react'
 import axios from 'axios'
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useAuth } from '../util/AuthProvider'
 
 const LoginPage = () => {
     const [ email, setEmail ] = useState('')
     const [ password, setPassword ] = useState('')
-    const [ token, setToken ] = useLocalStorage("token", "")
+    const { setToken } = useAuth()
     const navigate = useNavigate()
 
     const login = (element: React.FormEvent<HTMLFormElement>) => {
@@ -21,9 +21,12 @@ const LoginPage = () => {
         }
 
         axios.post('http://localhost:8080/auth/generateToken', body).then((res)=>{
-            setToken(res.data)
-            if(res.data != '')
-                navigate('/profile')
+            setToken(res.data.data)
+            console.log(res.data);
+            
+            
+            if(res.data.data != '')
+                navigate('/')
         })
     } 
 

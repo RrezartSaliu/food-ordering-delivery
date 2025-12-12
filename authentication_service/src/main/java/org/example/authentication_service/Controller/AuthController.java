@@ -7,10 +7,14 @@ import org.example.authentication_service.Domain.DTO.RegisterUserRequest;
 import org.example.authentication_service.Security.AppUserService;
 import org.example.authentication_service.Security.JwtService;
 import org.example.authentication_service.Service.UserService;
+import org.example.authentication_service.Util.ApiResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -28,33 +32,34 @@ public class AuthController {
     }
 
     @PostMapping("/register-customer-user")
-    public String registerCustomerUser(@RequestBody RegisterUserRequest registerUserRequest) {
-        return appUserService.addCustomerUser(registerUserRequest);
+    public ResponseEntity<ApiResponse<String>> registerCustomerUser(@RequestBody RegisterUserRequest registerUserRequest) {
+        String message = appUserService.addCustomerUser(registerUserRequest);
+        return ResponseEntity.ok(new ApiResponse<>(true, message, null));
     }
 
     @PostMapping("/register-restaurant-user")
-    public String registerRestaurantUser(@RequestBody RegisterRestaurantRequest registerRestaurantRequest) {
-        return appUserService.addRestaurantUser(registerRestaurantRequest);
+    public ResponseEntity<ApiResponse<String>> registerRestaurantUser(@RequestBody RegisterRestaurantRequest registerRestaurantRequest) {
+        String message = appUserService.addRestaurantUser(registerRestaurantRequest);
+        return ResponseEntity.ok(new ApiResponse<>(true, message, null));
     }
 
     @PostMapping("/register-driver-user")
-    public String registerDriverUser(@RequestBody RegisterDriverRequest registerDriverRequest) {
-        return appUserService.addDriverUser(registerDriverRequest);
+    public ResponseEntity<ApiResponse<String>> registerDriverUser(@RequestBody RegisterDriverRequest registerDriverRequest) {
+        String message = appUserService.addDriverUser(registerDriverRequest);
+        return ResponseEntity.ok(new ApiResponse<>(true, message, null));
     }
 
     @PostMapping("/generateToken")
-    public String generateToken(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<ApiResponse<String>> generateToken(@RequestBody AuthRequest authRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getEmail(), authRequest.getPassword())
             );
 
-
-            return jwtService.generateToken(userService.findByEmail(authRequest.getEmail()));
+            String token = jwtService.generateToken(userService.findByEmail(authRequest.getEmail()));
+            return ResponseEntity.ok(new ApiResponse<>(true, "Login successful", token));
         } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, e.getMessage(), null));
         }
     }
-
 }

@@ -1,21 +1,33 @@
-import { useNavigate } from "react-router-dom"
-import { useLocalStorage } from "../hooks/useLocalStorage"
+import axios from "axios"
+import { useEffect, useState } from "react"
+import { useAuth } from "../util/AuthProvider"
+import type { Profile } from "../types/Profile"
+import CustomerProfile from "./CustomerProfile"
+import RestaurantProfile from "./RestaurantProfile"
 
 const ProfilePage = () => {
-    const [ token, setToken ] = useLocalStorage("token", "")
-    const navigate = useNavigate()
+    const [ profile, setProfile ] = useState<Profile | null>(null)
+    const { token } = useAuth()
+    
+    useEffect(()=>{
+        axios.get("http://localhost:8080/user/profile", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        }).then((res)=> {
+            console.log(res.data);
+            setProfile(res.data.data)
+        })
+    }, [])
 
-    const logout = () => {
-        setToken("")
-        navigate("/login")
+    if (!profile) return <div>LOADING ...</div>
+
+    switch (profile.role) {
+        case "ROLE_USER":
+            return <CustomerProfile profile={profile}/>
+        case "ROLE_RESTAURANT":
+            return  <RestaurantProfile profile={profile}/>
     }
-
-    return (
-        <div>
-            Profile
-            <input type="button" value="logout" onClick={logout}/>
-        </div>
-    )
 }
 
 export default ProfilePage
