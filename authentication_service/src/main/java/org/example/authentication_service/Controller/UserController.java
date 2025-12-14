@@ -1,6 +1,7 @@
 package org.example.authentication_service.Controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.ApiResponse;
 import org.example.authentication_service.Domain.DTO.CustomerUserResponse;
 import org.example.authentication_service.Domain.DTO.RestaurantUserResponse;
 import org.example.authentication_service.Domain.model.AppUser;
@@ -11,7 +12,6 @@ import org.example.authentication_service.Mapper.RestaurantUserMapper;
 import org.example.authentication_service.Service.CustomerUserService;
 import org.example.authentication_service.Service.RestaurantUserService;
 import org.example.authentication_service.Service.UserService;
-import org.example.authentication_service.Util.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

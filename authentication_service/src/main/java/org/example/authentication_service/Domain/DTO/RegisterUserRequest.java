@@ -3,7 +3,6 @@ package org.example.authentication_service.Domain.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.authentication_service.Domain.model.Role;
 
 @Data
 @AllArgsConstructor

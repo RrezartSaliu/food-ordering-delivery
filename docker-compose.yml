@@ -32,6 +32,15 @@ services:
     env_file:
       - .env
 
+  restaurant_service:
+    build: ./restaurant_service
+    ports:
+      - "8083:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - restaurant_service_db
+
   authentication_service_db:
     image: postgres:15
     environment:
@@ -42,6 +51,17 @@ services:
       - "5433:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+
+  restaurant_service_db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: restaurant_service_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5434:5432"
+    volumes:
+      - restaurant_db_data:/var/lib/postgresql/data
   
   rabbitmq:
     image: rabbitmq:3-management
@@ -55,3 +75,4 @@ services:
 
 volumes:
   db_data:
+  restaurant_db_data:

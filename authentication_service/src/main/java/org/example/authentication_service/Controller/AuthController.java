@@ -1,5 +1,6 @@
 package org.example.authentication_service.Controller;
 
+import org.example.ApiResponse;
 import org.example.authentication_service.Domain.DTO.AuthRequest;
 import org.example.authentication_service.Domain.DTO.RegisterDriverRequest;
 import org.example.authentication_service.Domain.DTO.RegisterRestaurantRequest;
@@ -7,7 +8,6 @@ import org.example.authentication_service.Domain.DTO.RegisterUserRequest;
 import org.example.authentication_service.Security.AppUserService;
 import org.example.authentication_service.Security.JwtService;
 import org.example.authentication_service.Service.UserService;
-import org.example.authentication_service.Util.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +30,7 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
     }
+
 
     @PostMapping("/register-customer-user")
     public ResponseEntity<ApiResponse<String>> registerCustomerUser(@RequestBody RegisterUserRequest registerUserRequest) {
