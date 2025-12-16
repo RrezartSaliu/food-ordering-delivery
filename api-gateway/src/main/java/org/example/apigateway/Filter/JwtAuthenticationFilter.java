@@ -20,7 +20,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private static final String SECRET_KEY = "MjgyNjI4NTgwNTczMDI1NTcyNTA0MTg3NjI3NTM4NzY=";
 
     private static final List<String> PROTECTED_PATHS = List.of(
-            "/user/"
+            "/user/",
+            "/restaurant/protected"
     );
 
     @Override

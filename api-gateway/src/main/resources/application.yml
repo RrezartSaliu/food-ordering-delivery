@@ -15,3 +15,8 @@ spring:
           uri: http://auth-service:8080
           predicates:
             - Path=/auth/**
+
+        - id: restaurant-service
+          uri: http://restaurant-service:8080
+          predicates:
+            - Path=/restaurant/**

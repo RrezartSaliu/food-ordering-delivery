@@ -1,0 +1,20 @@
+server:
+  port: 8080
+  address: 0.0.0.0
+spring:
+  application:
+    name: order_service
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: order-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "org.example"
+        spring.json.use.type.headers: true
+    listener:
+      missing-topics-fatal: false
+      ack-mode: record
+      poll-timeout: 3000
