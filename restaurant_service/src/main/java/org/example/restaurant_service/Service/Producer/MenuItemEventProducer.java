@@ -23,6 +23,33 @@ public class MenuItemEventProducer {
                 .active(true)
                 .build();
 
-        kafkaTemplate.send("MENU_ITEM_CREATED", event);
+        kafkaTemplate.send("menu-item-events", event);
+    }
+
+    public void deleteMenuItem(MenuItem menuItem){
+        MenuItemEvent event = MenuItemEvent.builder()
+                .menuItemEventType(MenuItemEventType.valueOf("MENU_ITEM_DELETED"))
+                .menuItemId(menuItem.getId())
+                .restaurantId(menuItem.getRestaurantId())
+                .name(menuItem.getName())
+                .price(menuItem.getPrice())
+                .category(menuItem.getCategory().name())
+                .build();
+
+        kafkaTemplate.send("menu-item-events", event);
+    }
+
+    public void updateMenuItem(MenuItem menuItem){
+        MenuItemEvent event = MenuItemEvent.builder()
+                .menuItemEventType(MenuItemEventType.valueOf("MENU_ITEM_UPDATED"))
+                .menuItemId(menuItem.getId())
+                .restaurantId(menuItem.getRestaurantId())
+                .name(menuItem.getName())
+                .price(menuItem.getPrice())
+                .category(menuItem.getCategory().name())
+                .active(true)
+                .build();
+
+        kafkaTemplate.send("menu-item-events", event);
     }
 }

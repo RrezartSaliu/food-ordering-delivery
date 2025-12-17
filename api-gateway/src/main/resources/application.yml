@@ -20,3 +20,7 @@ spring:
           uri: http://restaurant-service:8080
           predicates:
             - Path=/restaurant/**
+        - id: order-service
+          uri: http://order-service:8080
+          predicates:
+            - Path=/shopping-cart/**, /order/**

@@ -1,7 +1,6 @@
 package org.example.order_service.Domain.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.List;
@@ -10,6 +9,11 @@ import java.util.List;
 @Data
 public class ShoppingCart {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private Long userId;
-    private List<Long> menuItemIds;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> items;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 }

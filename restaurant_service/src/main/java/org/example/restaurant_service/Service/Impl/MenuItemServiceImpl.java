@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
@@ -46,7 +45,11 @@ public class MenuItemServiceImpl implements MenuItemService {
         menuItem.setCategory(category);
         menuItem.setName(name);
         menuItem.setPrice(price);
-        return menuItemRepository.save(menuItem);
+
+        menuItem =  menuItemRepository.save(menuItem);
+
+        menuItemEventProducer.updateMenuItem(menuItem);
+        return menuItem;
     }
 
     @Override
@@ -64,6 +67,8 @@ public class MenuItemServiceImpl implements MenuItemService {
             throw new ForbiddenAction("Not allowed to delete item");
         }
         menuItemRepository.delete(removedItem);
+
+        menuItemEventProducer.deleteMenuItem(removedItem);
 
         return removedItem;
     }
