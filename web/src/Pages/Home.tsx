@@ -5,14 +5,17 @@ import type { Product } from "../types/Product"
  const Home = () => {
     const products: Product[] = [
         {
+            id: 1,
             name: "burger",
             price: 300,
         },
         {
+            id:2,
             name: "pizza",
             price: 500
         },
         {
+            id:3,
             name: "burek",
             price: 100
         }

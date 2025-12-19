@@ -20,15 +20,21 @@ const LoginPage = () => {
             password: password
         }
 
-        axios.post('http://localhost:8080/auth/generateToken', body).then((res)=>{
-            setToken(res.data.data)
-            console.log(res.data);
-            
-            
-            if(res.data.data != '')
-                navigate('/')
-        })
-    } 
+        axios.post('http://localhost:8080/auth/generateToken', body)
+            .then(res => {
+                const token = res?.data?.data;
+
+                if (!token) return;
+
+                localStorage.setItem('token', token);
+                setToken(token);
+                navigate('/');
+            })
+            .catch(err => {
+                console.error(err.response?.data || err.message);
+            });
+
+    }
 
     return(
         <div id='container'>
