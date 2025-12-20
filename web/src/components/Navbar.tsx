@@ -12,7 +12,7 @@ const Navbar = () => {
   const { role, logout } = useAuth();
   const navigate = useNavigate()
   const shoppingCartApi = useApi<ShoppingCart>(
-    "http://localhost:8080/shopping-cart/get-shopping-cart",
+    `${import.meta.env.VITE_API_URL}shopping-cart/get-shopping-cart`,
     token
   );
   const {cartCount, setCartCount} = useCart()
@@ -51,7 +51,7 @@ const Navbar = () => {
         {token && role === "ROLE_USER" && (
           <div onClick={() => {navigate('/shopping-cart')
           }} id="cart-logo-container">
-            <div id="cart-badge">{cartCount}</div>
+            {cartCount !==0 ? (<div id="cart-badge">{cartCount}</div>):<></>}
             <FaShoppingCart size="3em" color="white" />
           </div>
         )}

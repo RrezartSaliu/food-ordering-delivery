@@ -24,11 +24,11 @@ public class RestaurantControllerProtected {
     private final MenuItemMapper menuItemMapper;
 
     @PostMapping("/create-item")
-    public ResponseEntity<ApiResponse<String>> createMenuItem(@RequestHeader("X-User-Username") String username, @RequestHeader("X-User-Id") String id, @RequestHeader("X-User-Role") String role, @RequestBody MenuItemRequest menuItemRequest) {
+    public ResponseEntity<ApiResponse<MenuItemResponse>> createMenuItem(@RequestHeader("X-User-Username") String username, @RequestHeader("X-User-Id") String id, @RequestHeader("X-User-Role") String role, @RequestBody MenuItemRequest menuItemRequest) {
         if (role.equals("ROLE_RESTAURANT")) {
             try {
-                menuItemService.create(Long.valueOf(id), menuItemRequest.getName(), menuItemRequest.getPrice(), menuItemRequest.getCategory());
-                return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Item added successfully", "Item created successfully"));
+                MenuItem menuItem = menuItemService.create(Long.valueOf(id), menuItemRequest.getName(), menuItemRequest.getPrice(), menuItemRequest.getCategory());
+                return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(true, "Item added successfully", menuItemMapper.toResponse(menuItem)));
             }
             catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage(), null));

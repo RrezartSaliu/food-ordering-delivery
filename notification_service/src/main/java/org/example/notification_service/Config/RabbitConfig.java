@@ -17,4 +17,8 @@ public class RabbitConfig {
     public Queue userRegisteredQueue() {
         return new Queue("user.registered.queue", true);
     }
+
+    @Bean Queue paymentQueue() {
+        return new Queue("payment.queue", true);
+    }
 }

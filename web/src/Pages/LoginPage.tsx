@@ -13,7 +13,7 @@ const LoginPage = () => {
     data: message,
     post,
     error,
-  } = useApi<string>("http://localhost:8080/auth/generateToken");
+  } = useApi<string>(`${import.meta.env.VITE_API_URL}auth/generateToken`);
 
   const login = async (element: React.FormEvent<HTMLFormElement>) => {
     element.preventDefault();

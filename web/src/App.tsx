@@ -8,6 +8,7 @@ import Navbar from './components/Navbar'
 import { AuthProvider } from './util/AuthProvider'
 import { CartProvider } from './util/CartContext'
 import ShoppingCartPage from './Pages/ShoppingCartPage'
+import CheckoutPage from './Pages/CheckoutPage'
 
 function App() {
   return(
@@ -22,6 +23,7 @@ function App() {
             <Route path="/register-restaurant" element={<RegisterRestaurantPage/>}/>
             <Route path="/profile" element={<ProfilePage/>}/>
             <Route path="/shopping-cart" element={<ShoppingCartPage/>}/>
+            <Route path="/checkout" element={<CheckoutPage/>}/>
           </Routes>
         </CartProvider>
       </BrowserRouter>

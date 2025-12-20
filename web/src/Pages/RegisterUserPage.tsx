@@ -8,7 +8,7 @@ const RegisterUserPage = () => {
     const [ password, setPassword ] = useState('')
     const [ secondPassword, setSecondPassword ] = useState('')
     const [ email, setEmail ] = useState('')
-    const registerApi = useApi("http://localhost:8080/auth/register-customer-user")
+    const registerApi = useApi(`${import.meta.env.VITE_API_URL}auth/register-customer-user`)
 
     const register = (element: React.FormEvent<HTMLFormElement>) => {
         element.preventDefault()

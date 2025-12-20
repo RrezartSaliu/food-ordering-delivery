@@ -24,15 +24,15 @@ const ItemsDisplay = ({ items, setItems }: ItemsDisplayProps) => {
   const [editName, setEditName] = useState("");
   const [editPrice, setEditPrice] = useState<number | "">("");
   const createItemApi = useApi<Product>(
-    "http://localhost:8080/restaurant/protected/create-item",
+    `${import.meta.env.VITE_API_URL}restaurant/protected/create-item`,
     token
   );
   const deleteItemApi = useApi<Product>(
-    "http://localhost:8080/restaurant/protected/delete-item/",
+    `${import.meta.env.VITE_API_URL}restaurant/protected/delete-item/`,
     token
   );
   const updateItemApi = useApi<Product>(
-    "http://localhost:8080/restaurant/protected/update-item",
+    `${import.meta.env.VITE_API_URL}restaurant/protected/update-item`,
     token
   );
 
@@ -237,7 +237,7 @@ const ItemsDisplay = ({ items, setItems }: ItemsDisplayProps) => {
 const RestaurantProfile = ({ profile }: Prop) => {
   const { token } = useAuth();
   const [items, setItems] = useState<Record<string, Product[]>>({});
-  const itemsApi = useApi<Record<string, Product[]>>("http://localhost:8080/restaurant/protected/my-items-grouped", token)
+  const itemsApi = useApi<Record<string, Product[]>>(`${import.meta.env.VITE_API_URL}restaurant/protected/my-items-grouped`, token)
 
   useEffect(() => {
     if (!token) return;

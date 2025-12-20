@@ -3,21 +3,17 @@ server:
   address: 0.0.0.0
 spring:
   application:
-    name: order_service
+    name: payment_service
   kafka:
     bootstrap-servers: kafka:9092
     consumer:
-      group-id: order-service-group
+      group-id: payment-service-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "org.example"
         spring.json.use.type.headers: true
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-    listener:
-      missing-topics-fatal: false
-      ack-mode: record
-      poll-timeout: 3000
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}

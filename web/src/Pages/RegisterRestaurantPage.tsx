@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom"
 import { useState } from 'react'
-import axios from "axios"
 import { useApi } from "../hooks/useApi"
 
 const RegisterRestaurantPage = () => {
@@ -9,7 +8,7 @@ const RegisterRestaurantPage = () => {
     const [ password, setPassword ] = useState('')
     const [ secondPassword, setSecondPassword ] = useState('')
     const [ email, setEmail ] = useState('')
-    const registerApi = useApi<string>("http://localhost:8080/auth/register-restaurant-user")
+    const registerApi = useApi<string>(`${import.meta.env.VITE_API_URL}auth/register-restaurant-user`)
 
     const register = (element: React.FormEvent<HTMLFormElement>) => {
         element.preventDefault()        

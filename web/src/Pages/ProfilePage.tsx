@@ -9,7 +9,7 @@ import { useApi } from "../hooks/useApi"
 const ProfilePage = () => {
     const [ profile, setProfile ] = useState<Profile | null>(null)
     const { token } = useAuth()
-    const profileApi = useApi("http://localhost:8080/user/profile", token)
+    const profileApi = useApi(`${import.meta.env.VITE_API_URL}user/profile`, token)
 
 
     

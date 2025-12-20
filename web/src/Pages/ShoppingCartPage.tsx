@@ -3,17 +3,19 @@ import { useApi } from "../hooks/useApi";
 import type { ShoppingCart } from "../types/ShoppingCart";
 import { useAuth } from "../util/AuthProvider";
 import { useCart } from "../util/CartContext";
+import { useNavigate } from "react-router-dom";
 
 const ShoppingCartPage = () => {
   const { token } = useAuth();
   const { cartCount, setCartCount } = useCart();
   const [shoppingCart, setShoppingCart] = useState<ShoppingCart | null>(null);
+  const navigate = useNavigate()
   const shoppingCartApi = useApi<ShoppingCart>(
-    "http://localhost:8080/shopping-cart/get-shopping-cart",
+    `${import.meta.env.VITE_API_URL}shopping-cart/get-shopping-cart`,
     token
   );
   const removeItemApi = useApi<ShoppingCart>(
-    "http://localhost:8080/shopping-cart/remove-item",
+    `${import.meta.env.VITE_API_URL}shopping-cart/remove-item`,
     token
   )
 
@@ -48,6 +50,7 @@ const ShoppingCartPage = () => {
       <div>Shopping Cart</div>
       {shoppingCart?.items.map((item)=>(<div key={item.id}>{item.menuItemSnapshot.name} {item.menuItemSnapshot.price} - quantity - {item.quantity} <button onClick={()=>removeItem(item.id)}>remove</button></div>))}
       Total {total}
+      <button onClick={()=>navigate('/checkout')}>Go to checkout</button>
     </div>
   );
 };
