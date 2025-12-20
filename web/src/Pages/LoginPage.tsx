@@ -1,58 +1,66 @@
-import { Link, useNavigate } from 'react-router-dom'
-import '../style/AuthFormPages.css'
-import { useState } from 'react'
-import axios from 'axios'
-import { useAuth } from '../util/AuthProvider'
+import { Link, useNavigate } from "react-router-dom";
+import "../style/AuthFormPages.css";
+import { useState } from "react";
+import { useAuth } from "../util/AuthProvider";
+import { useApi } from "../hooks/useApi";
 
 const LoginPage = () => {
-    const [ email, setEmail ] = useState('')
-    const [ password, setPassword ] = useState('')
-    const { setToken } = useAuth()
-    const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { setToken } = useAuth();
+  const navigate = useNavigate();
+  const {
+    data: message,
+    post,
+    error,
+  } = useApi<string>("http://localhost:8080/auth/generateToken");
 
-    const login = (element: React.FormEvent<HTMLFormElement>) => {
-        element.preventDefault()
-        console.log("email", email)
-        console.log('password', password)
+  const login = async (element: React.FormEvent<HTMLFormElement>) => {
+    element.preventDefault();
+    console.log("email", email);
+    console.log("password", password);
 
-        const body = {
-            email: email,
-            password: password
-        }
+    const body = {
+      email: email,
+      password: password,
+    };
 
-        axios.post('http://localhost:8080/auth/generateToken', body)
-            .then(res => {
-                const token = res?.data?.data;
+    const res = await post("", body)
 
-                if (!token) return;
-
-                localStorage.setItem('token', token);
-                setToken(token);
-                navigate('/');
-            })
-            .catch(err => {
-                console.error(err.response?.data || err.message);
-            });
-
+    if (res?.data) {
+    setToken(res.data); // update context
+    console.log(res.message)
+    navigate("/"); // redirect to home
     }
 
-    return(
-        <div id='container'>
-            <div id="login-box">
-                <div></div>
-                <h1>LOGIN</h1>
-                <form method="post" id='form' onSubmit={login}>
-                    <label>Email</label>
-                    <input type="text" className='input-field' onChange={(e) => setEmail(e.target.value)}></input>
-                    <label>Password</label>
-                    <input type="password" className='input-field' onChange={(e) => setPassword(e.target.value)}></input>
-                    <input type="submit" className='btn'></input>
-                    <Link to='/register-user'>Register as user</Link>
-                    <Link to='/register-restaurant'>Register as restaurant</Link>
-                </form>
-            </div>
-        </div>
-    )
-}
+  };
 
-export default LoginPage
+  return (
+    <div id="container">
+      <div id="login-box">
+        <div></div>
+        <h1>LOGIN</h1>
+        {error && <p className="error">{error}</p>}
+        <form method="post" id="form" onSubmit={login}>
+          <label>Email</label>
+          <input
+            type="text"
+            className="input-field"
+            onChange={(e) => setEmail(e.target.value)}
+          ></input>
+          <label>Password</label>
+          <input
+            type="password"
+            className="input-field"
+            onChange={(e) => setPassword(e.target.value)}
+          ></input>
+          <input type="submit" className="btn"></input>
+          <Link to="/register-user">Register as user</Link>
+          <Link to="/register-restaurant">Register as restaurant</Link>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;

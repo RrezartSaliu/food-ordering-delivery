@@ -1,10 +1,9 @@
 import type { RestaurantProfile as RestaurantPofileType } from "../types/Profile";
-import axios from "axios";
 import { useAuth } from "../util/AuthProvider";
 import type { Product } from "../types/Product";
 import { useEffect, useState } from "react";
 import style from "../style/RestaurantProfile.module.css";
-import type { ApiResponse } from "../types/ApiResponse";
+import { useApi } from "../hooks/useApi";
 
 interface Prop {
   profile: RestaurantPofileType;
@@ -24,32 +23,43 @@ const ItemsDisplay = ({ items, setItems }: ItemsDisplayProps) => {
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editPrice, setEditPrice] = useState<number | "">("");
+  const createItemApi = useApi<Product>(
+    "http://localhost:8080/restaurant/protected/create-item",
+    token
+  );
+  const deleteItemApi = useApi<Product>(
+    "http://localhost:8080/restaurant/protected/delete-item/",
+    token
+  );
+  const updateItemApi = useApi<Product>(
+    "http://localhost:8080/restaurant/protected/update-item",
+    token
+  );
 
   const saveMethod = async () => {
     if (!token || !openCategory || !name || price == null) return;
 
-    const res = await axios.post<ApiResponse<Product>>(
-      "http://localhost:8080/restaurant/protected/create-item",
-      {
-        name,
-        price,
-        category: openCategory,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const body = {
+      name: name,
+      price: price,
+      category: openCategory,
+    };
+
+    const fetchCreatedProduct = async () => {
+      const res = await createItemApi.post("", body);
+      if (res) {
+        const newProduct = res.data;
+
+        setItems((prev) => ({
+          ...prev,
+          [openCategory]: prev[openCategory]
+            ? [...prev[openCategory], newProduct]
+            : [newProduct],
+        }));
       }
-    );
+    };
 
-    const newProduct = res.data.data;
-
-    setItems((prev) => ({
-      ...prev,
-      [openCategory]: prev[openCategory]
-        ? [...prev[openCategory], newProduct]
-        : [newProduct],
-    }));
+    fetchCreatedProduct();
 
     setName("");
     setPrice("");
@@ -59,54 +69,51 @@ const ItemsDisplay = ({ items, setItems }: ItemsDisplayProps) => {
   const deleteItem = async (id: number) => {
     if (!token || !openCategory) return;
 
-    const res = await axios.delete<ApiResponse<Product>>(
-      `http://localhost:8080/restaurant/protected/delete-item/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const fetchDeletedProduct = async () => {
+      const res = await deleteItemApi.del(`${id}`);
+
+      if (res) {
+        const toRemoveProduct = res.data;
+        setItems((prev) => ({
+          ...prev,
+          [openCategory]: prev[openCategory].filter(
+            (prod) => prod.id !== toRemoveProduct.id
+          ),
+        }));
       }
-    );
+    };
 
-    const toRemoveProduct = res.data.data;
-
-    setItems((prev) => ({
-      ...prev,
-      [openCategory]: prev[openCategory].filter(
-        (prod) => prod.id !== toRemoveProduct.id
-      ),
-    }));
+    fetchDeletedProduct();
   };
 
   const saveEdit = async (id: number) => {
     if (!token || !openCategory || !editName || price == null) return;
 
-    const res = await axios.post<ApiResponse<Product>>(
-      `http://localhost:8080/restaurant/protected/update-item?itemId=${id}`,
-      {
-        name: editName,
-        price: editPrice,
-        category: openCategory,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const body = {
+      name: editName,
+      price: editPrice,
+      category: openCategory,
+    };
+
+    const fetchUpdatedProduct = async () => {
+      const res = await updateItemApi.post(`?itemId=${id}`, body);
+
+      if (res) {
+        const toUpdateProduct = res.data;
+        setItems((prev) => ({
+          ...prev,
+          [openCategory]: prev[openCategory].map((prod) =>
+            prod.id === toUpdateProduct.id ? toUpdateProduct : prod
+          ),
+        }));
       }
-    );
+    };
 
-    const updatedProduct = res.data.data;
+    fetchUpdatedProduct()
 
-    setItems((prev) => ({
-      ...prev,
-      [openCategory]: prev[openCategory].map((prod) =>
-        prod.id === updatedProduct.id ? updatedProduct : prod
-      ),
-    }));
-
-    setEditName("")
-    setEditPrice("")
-    setEditingProductId(null)
+    setEditName("");
+    setEditPrice("");
+    setEditingProductId(null);
   };
 
   return (
@@ -230,22 +237,20 @@ const ItemsDisplay = ({ items, setItems }: ItemsDisplayProps) => {
 const RestaurantProfile = ({ profile }: Prop) => {
   const { token } = useAuth();
   const [items, setItems] = useState<Record<string, Product[]>>({});
+  const itemsApi = useApi<Record<string, Product[]>>("http://localhost:8080/restaurant/protected/my-items-grouped", token)
 
   useEffect(() => {
     if (!token) return;
 
-    axios
-      .get("http://localhost:8080/restaurant/protected/my-items-grouped", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => {
-        setItems(res.data?.data);
-      })
-      .catch((err) => {
-        console.error(err.response?.data || err.message);
-      });
+    const fetchProducts = async () => {
+      const res = await itemsApi.get()
+
+      if (res){
+        setItems(res.data)
+      }
+    }
+
+    fetchProducts()
   }, [token]);
 
   return (

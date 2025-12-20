@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { useState } from 'react'
 import axios from "axios"
+import { useApi } from "../hooks/useApi"
 
 const RegisterRestaurantPage = () => {
     const [ name, setName ] = useState('')
@@ -8,6 +9,7 @@ const RegisterRestaurantPage = () => {
     const [ password, setPassword ] = useState('')
     const [ secondPassword, setSecondPassword ] = useState('')
     const [ email, setEmail ] = useState('')
+    const registerApi = useApi<string>("http://localhost:8080/auth/register-restaurant-user")
 
     const register = (element: React.FormEvent<HTMLFormElement>) => {
         element.preventDefault()        
@@ -20,9 +22,8 @@ const RegisterRestaurantPage = () => {
                 email: email
             }
 
-            axios.post('http://localhost:8080/auth/register-restaurant-user', body).then((res)=>{
-                console.log(res);
-            })
+            registerApi.post("", body)
+
         }
     }
 

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import axios from "axios"
+import { useApi } from "../hooks/useApi"
 
 const RegisterUserPage = () => {
     const [ firstName, setFirstName ] = useState('')
@@ -8,6 +8,7 @@ const RegisterUserPage = () => {
     const [ password, setPassword ] = useState('')
     const [ secondPassword, setSecondPassword ] = useState('')
     const [ email, setEmail ] = useState('')
+    const registerApi = useApi("http://localhost:8080/auth/register-customer-user")
 
     const register = (element: React.FormEvent<HTMLFormElement>) => {
         element.preventDefault()
@@ -24,9 +25,8 @@ const RegisterUserPage = () => {
                 email: email
             }
 
-            axios.post('http://localhost:8080/auth/register-customer-user', body).then((res)=>{
-                console.log(res);
-            })
+            registerApi.post("", body)
+
         }
     }
 

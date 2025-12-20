@@ -41,3 +41,22 @@
     background-color: rgb(226, 165, 10);
     box-shadow: 0 0 5px 0 rgb(226, 165, 10);
 }
+
+#cart-logo-container {
+    position: relative;
+    margin-right: 1em;
+}
+
+#cart-badge{
+    position: absolute;
+    top: -2px;
+    right: -5px;
+    border-radius: 50%;
+    background-color: rgb(247, 180, 12);;
+    width: 3vh;
+    height: 3vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+}
