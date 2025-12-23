@@ -17,7 +17,7 @@ public class KafkaProducer {
         return value != null && value.matches("\\d+");
     }
 
-    public void sendCheckoutEvent(CardInfoRequest cardInfoRequest, Integer total, String email) {
+    public void sendCheckoutEvent(CardInfoRequest cardInfoRequest, Integer total, String email, Long userId) {
 
         if (
                 cardInfoRequest.getCardNumber() == null ||
@@ -36,10 +36,9 @@ public class KafkaProducer {
                 .cardNumber(cardInfoRequest.getCardNumber())
                 .cvv(cardInfoRequest.getCvv())
                 .amount(BigDecimal.valueOf(total))
+                .userId(userId)
                 .email(email).build();
 
-        System.out.println(email);
-        System.out.println(event.getEmail());
 
         paymentEventKafkaTemplate.send("checkout-event", event);
     }

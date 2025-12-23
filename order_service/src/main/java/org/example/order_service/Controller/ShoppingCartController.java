@@ -68,10 +68,11 @@ public class ShoppingCartController {
     public ResponseEntity<ApiResponse<?>> checkout(@RequestHeader("X-User-Id") String userId, @RequestHeader("X-User-Role") String role, @RequestBody CardInfoRequest cardInfoRequest, @RequestHeader("X-User-Username") String username){
         if (role.equals("ROLE_USER")){
             int total = shoppingCartService.getShoppingCart(Long.valueOf(userId)).getItems().stream().map(cartItem -> cartItem.getMenuItemSnapshot().getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()))).mapToInt(BigDecimal::intValue).sum();
-            try {kafkaProducer.sendCheckoutEvent(cardInfoRequest, total, username);}
+            try {kafkaProducer.sendCheckoutEvent(cardInfoRequest, total, username, Long.valueOf(userId));}
             catch (Exception e ){
                 System.out.println(e.getMessage());
             }
+            return ResponseEntity.ok(new ApiResponse<>(true, "Checkout sent", null));
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(false, "Not customer user", null));
     }

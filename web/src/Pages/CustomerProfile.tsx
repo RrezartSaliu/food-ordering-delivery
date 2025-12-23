@@ -6,7 +6,7 @@ interface Props {
 
 const CustomerProfile = ({profile}: Props) => {
     return (
-        <div id="container">
+        <div id="home-container">
             <h1>Customer Profile</h1>
             <p>Email: {profile.email}</p>
             <p>First name: {profile.firstName}</p>

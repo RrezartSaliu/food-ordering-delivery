@@ -46,7 +46,7 @@ const ShoppingCartPage = () => {
     ) || 0;
 
   return (
-    <div id="container">
+    <div id="home-container">
       <div>Shopping Cart</div>
       {shoppingCart?.items.map((item)=>(<div key={item.id}>{item.menuItemSnapshot.name} {item.menuItemSnapshot.price} - quantity - {item.quantity} <button onClick={()=>removeItem(item.id)}>remove</button></div>))}
       Total {total}

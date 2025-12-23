@@ -1,0 +1,2 @@
+ALTER TABLE restaurant_profile
+ADD COLUMN verified BOOLEAN DEFAULT FALSE;

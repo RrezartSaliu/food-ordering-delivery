@@ -25,6 +25,7 @@ interface UseApiReturn<T> {
     path: string,
     config?: AxiosRequestConfig
   ) => Promise<ApiResponse<T> | null>;
+  setData: React.Dispatch<React.SetStateAction<ApiResponse<T> | null>>;
 }
 
 export function useApi<T = any>(
@@ -131,5 +132,5 @@ export function useApi<T = any>(
     [baseUrl, token]
   );
 
-  return { data, error, loading, get, post, put, del };
+  return { data, error, loading, get, post, put, del, setData };
 }

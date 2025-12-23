@@ -4,7 +4,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.example.authentication_service.Domain.model.AppUser;
+import org.example.authentication_service.Domain.model.RestaurantProfile;
+import org.example.authentication_service.Domain.model.Role;
+import org.example.authentication_service.Repository.RestaurantUserRepository;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -14,8 +18,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
+@RequiredArgsConstructor
 public class JwtService {
     public static final String SECRET = "MjgyNjI4NTgwNTczMDI1NTcyNTA0MTg3NjI3NTM4NzY=";
+    private final RestaurantUserRepository restaurantProfileRepository;
 
     public String generateToken(AppUser appUser) {
         Map<String, Object> claims = new HashMap<>();
@@ -31,6 +37,12 @@ public class JwtService {
     }
 
     private String createToken(Map<String, Object> claims, AppUser appUser) {
+        if (appUser.getRole() == Role.ROLE_RESTAURANT) {
+            RestaurantProfile profile = restaurantProfileRepository
+                    .findByAppUser(appUser);
+            claims.put("verified", profile.isVerified());
+        }
+
         return Jwts.builder()
                 .claims(claims)
                 .subject(appUser.getEmail())

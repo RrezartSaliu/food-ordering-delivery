@@ -5,6 +5,7 @@ import type { Profile } from "../types/Profile"
 import CustomerProfile from "./CustomerProfile"
 import RestaurantProfile from "./RestaurantProfile"
 import { useApi } from "../hooks/useApi"
+import AdminProfile from "./AdminProfile"
 
 const ProfilePage = () => {
     const [ profile, setProfile ] = useState<Profile | null>(null)
@@ -30,6 +31,8 @@ const ProfilePage = () => {
             return <CustomerProfile profile={profile}/>
         case "ROLE_RESTAURANT":
             return  <RestaurantProfile profile={profile}/>
+        case "ROLE_ADMIN":
+            return <AdminProfile profile={profile}/>
     }
 }
 

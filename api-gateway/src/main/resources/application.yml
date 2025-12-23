@@ -24,3 +24,7 @@ spring:
           uri: http://order-service:8080
           predicates:
             - Path=/shopping-cart/**, /order/**
+        - id: notification-service
+          uri: http://notification-service:8080
+          predicates:
+            - Path=/ws/**

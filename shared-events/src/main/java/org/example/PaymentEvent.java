@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentEvent {
+    private Long userId;
     private String firstName;
     private String lastName;
     private String cardNumber;

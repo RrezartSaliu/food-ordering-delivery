@@ -4,16 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class RestaurantProfile {
     @Id
     private Long id;
@@ -22,4 +18,5 @@ public class RestaurantProfile {
     private AppUser appUser;
     private String name;
     private String address;
+    private boolean verified;
 }

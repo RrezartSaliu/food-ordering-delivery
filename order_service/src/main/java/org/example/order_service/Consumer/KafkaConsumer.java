@@ -2,8 +2,12 @@ package org.example.order_service.Consumer;
 
 import lombok.RequiredArgsConstructor;
 import org.example.MenuItemEvent;
+import org.example.PaymentEvent;
 import org.example.order_service.Domain.model.MenuItemSnapshot;
+import org.example.order_service.Domain.model.ShoppingCart;
 import org.example.order_service.Repository.MenuItemSnapshotRepository;
+import org.example.order_service.Service.OrderService;
+import org.example.order_service.Service.ShoppingCartService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +15,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaConsumer {
     private final MenuItemSnapshotRepository menuItemSnapshotRepository;
+    private final OrderService orderService;
+    private final ShoppingCartService shoppingCartService;
 
     @KafkaListener(topics = "menu-item-events", groupId = "order-service-group")
     public void consumeMenuItemEvent(MenuItemEvent menuItemEvent) {
@@ -34,5 +40,10 @@ public class KafkaConsumer {
         }
 
         menuItemSnapshotRepository.save(snapshot);
+    }
+
+    @KafkaListener(topics = "successful-payment", groupId = "order-service-group")
+    public void consumeSuccessfulPayment(PaymentEvent paymentEvent) {
+        orderService.create(paymentEvent.getAmount(),  paymentEvent.getUserId());
     }
 }

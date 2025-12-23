@@ -86,6 +86,7 @@ public class AppUserService implements UserDetailsService {
         restaurantProfile.setAppUser(savedUser);
         restaurantProfile.setId(savedUser.getId());
         restaurantProfile.setName(registerRestaurantRequest.getName());
+        restaurantProfile.setVerified(false);
         restaurantProfile.setAddress(registerRestaurantRequest.getAddress());
         restaurantUserRepository.save(restaurantProfile);
         return "RestaurantUser added successfully";

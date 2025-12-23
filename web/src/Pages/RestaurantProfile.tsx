@@ -254,7 +254,7 @@ const RestaurantProfile = ({ profile }: Prop) => {
   }, [token]);
 
   return (
-    <div id="container">
+    <div id="home-container">
       <h1>Restaurant Profile</h1>
       <p>email: {profile.email}</p>
       <p>name: {profile.name}</p>

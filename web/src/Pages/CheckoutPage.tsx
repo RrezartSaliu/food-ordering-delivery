@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useApi } from "../hooks/useApi";
 import { useAuth } from "../util/AuthProvider";
+import { jwtDecode } from "jwt-decode";
 
 const CheckoutPage = () => {
     const {token} = useAuth()
@@ -9,11 +10,27 @@ const CheckoutPage = () => {
   const [cardNumber, setCardNumber] = useState<string>("");
   const [cvv, setCvv] = useState<string>(""); 
   const checkoutApi = useApi<string | null>(`${import.meta.env.VITE_API_URL}shopping-cart/checkout`, token)
+  const [ processingPayment, setProcessingPayment ] = useState<boolean>(false)
+  const decoded: any = jwtDecode(token)
+  const userId = decoded.id
+  const [ paymentMade, setPaymentMade ] = useState<boolean>(false)
+  const [paymentMessage, setPaymentMessage] = useState<string>("")
+  const ws = new WebSocket(`ws://localhost:8080/ws?userId=${userId}`);
+
+    ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log(data);
+        setProcessingPayment(false)
+        setPaymentMade(true)
+        setPaymentMessage(data.status)
+    };
 
   const checkout = () => {
     const cardNum = Number(cardNumber);
     const cvvNum = Number(cvv);
 
+    console.log(userId);
+    
     if (
       !isNaN(cardNum) &&
       !isNaN(cvvNum) &&
@@ -28,14 +45,14 @@ const CheckoutPage = () => {
             "cvv": cvv
         }
       checkoutApi.post("", body)
+      setProcessingPayment(true)
     } else {
       console.log("Invalid card number or CVV");
     }
   };
 
-  return (
-    <div id="container">
-      Checkout page:
+  const form = () =>{
+    return (<>Checkout page:
       <div>
         <label>Card Holder First Name</label>
         <input type="text" onChange={(e) => setName(e.target.value)}></input>
@@ -73,7 +90,19 @@ const CheckoutPage = () => {
           onChange={(e) => setCvv(e.target.value)}
         ></input>
       </div>
-      <button onClick={() => checkout()}>Confirm</button>
+      <button onClick={() => checkout()}>Confirm</button></>)
+  }
+
+  return (
+    <div id="container">
+      { processingPayment ? (
+        <div>proccessing payment...</div>
+      ):
+        paymentMade?(
+          <div>{paymentMessage}</div>
+        ):
+        form()
+      }
     </div>
   );
 };

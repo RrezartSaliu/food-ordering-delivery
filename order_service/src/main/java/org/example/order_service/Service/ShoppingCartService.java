@@ -8,4 +8,5 @@ public interface ShoppingCartService {
     ShoppingCart getShoppingCart(Long userId);
     ShoppingCart addItem(Long userId, Long itemId, Integer quantity);
     ShoppingCart removeItem(Long userId, Long itemId);
+    ShoppingCart emptyShoppingCart(Long userId);
 }

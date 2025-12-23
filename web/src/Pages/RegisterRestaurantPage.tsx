@@ -27,7 +27,7 @@ const RegisterRestaurantPage = () => {
     }
 
     return(
-        <div id='container'>
+        <div id='home-container'>
             <div id="login-box">
                 <div></div>
                 <h1>Sign up - Restaurant</h1>

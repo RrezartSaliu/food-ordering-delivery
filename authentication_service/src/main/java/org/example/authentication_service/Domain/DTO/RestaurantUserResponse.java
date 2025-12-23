@@ -12,4 +12,5 @@ public class RestaurantUserResponse {
     private String name;
     private String address;
     private Role role;
+    private boolean verified;
 }
