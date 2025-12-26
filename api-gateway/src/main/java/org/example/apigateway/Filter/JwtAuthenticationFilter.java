@@ -22,7 +22,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     private static final List<String> PROTECTED_PATHS = List.of(
             "/user/",
             "/restaurant/protected",
-            "/shopping-cart"
+            "/shopping-cart",
+            "/order",
+            "/auth/driver"
     );
 
     @Override

@@ -18,6 +18,8 @@ export interface RestaurantProfile extends BaseProfile {
 }
 
 export interface DriverProfile extends BaseProfile {
+    firstName: string
+    lastName: string
     role: "ROLE_DRIVER";
     vehicle: string;
 }

@@ -20,4 +20,6 @@ public class Order {
     private LocalDateTime orderDateTime;
     private Long userId;
     private OrderStatus orderStatus;
+    private Long restaurantId;
+    private Long driverId;
 }

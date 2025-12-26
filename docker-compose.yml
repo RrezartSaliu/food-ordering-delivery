@@ -50,9 +50,12 @@ services:
       - "8084:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
     depends_on:
       - order_service_db
       - kafka
+      - rabbitmq
 
   payment-service:
     build: ./payment_service

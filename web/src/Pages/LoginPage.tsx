@@ -10,7 +10,6 @@ const LoginPage = () => {
   const { setToken } = useAuth();
   const navigate = useNavigate();
   const {
-    data: message,
     post,
     error,
   } = useApi<string>(`${import.meta.env.VITE_API_URL}auth/generateToken`);

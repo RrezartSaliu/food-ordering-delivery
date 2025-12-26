@@ -2,10 +2,13 @@ package org.example.order_service.Service.Impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.OrderCreatedEvent;
+import org.example.order_service.Config.RabbitConfig;
 import org.example.order_service.Domain.model.*;
 import org.example.order_service.Repository.OrderRepository;
 import org.example.order_service.Service.OrderService;
 import org.example.order_service.Service.ShoppingCartService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
+    private final RabbitTemplate rabbitTemplate;
     private final OrderRepository orderRepository;
     private final ShoppingCartService shoppingCartService;
 
@@ -30,10 +34,9 @@ public class OrderServiceImpl implements OrderService {
     public Order create(BigDecimal amount, Long userId) {
         ShoppingCart cart = shoppingCartService.getShoppingCart(userId);
 
-        // Copy cart items to order items
         List<OrderItem> orderItems = cart.getItems().stream().map(item -> {
             OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(null); // will set later
+            orderItem.setOrder(null);
             orderItem.setQuantity(item.getQuantity());
             orderItem.setMenuItemSnapshot(item.getMenuItemSnapshot());
             return orderItem;
@@ -45,15 +48,19 @@ public class OrderServiceImpl implements OrderService {
         order.setAmount(amount);
         order.setOrderStatus(OrderStatus.WAITING);
         order.setOrderDateTime(LocalDateTime.now());
+        order.setRestaurantId(order.getItems().stream().findFirst().get().getMenuItemSnapshot().getRestaurantId());
 
-        // Link each orderItem to order
         orderItems.forEach(oi -> oi.setOrder(order));
 
-        // Save order first
         orderRepository.save(order);
 
-        // THEN clear the cart
         shoppingCartService.emptyShoppingCart(userId);
+
+        OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent();
+        orderCreatedEvent.setOrderId(order.getId());
+        orderCreatedEvent.setRestaurantId(order.getItems().stream().findFirst().get().getMenuItemSnapshot().getRestaurantId());
+
+        rabbitTemplate.convertAndSend(RabbitConfig.ORDER_QUEUE, orderCreatedEvent);
 
         return order;
     }
@@ -72,8 +79,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> findByUserId(Long userId) {
-        return orderRepository.findByUserId(userId);
+    public List<Order> findAllByUserId(Long userId) {
+        return orderRepository.findAllByUserIdOrderByOrderDateTimeDesc(userId);
     }
 
     @Override
@@ -81,5 +88,10 @@ public class OrderServiceImpl implements OrderService {
         Order order = this.findById(id);
         order.setOrderStatus(OrderStatus.DELIVERED);
         return orderRepository.save(order);
+    }
+
+    @Override
+    public List<Order> findAllByRestaurantIdAndOrderStatus(Long restaurantId, OrderStatus orderStatus){
+        return orderRepository.findAllByRestaurantIdAndOrderStatusOrderByOrderDateTimeDesc(restaurantId, orderStatus);
     }
 }

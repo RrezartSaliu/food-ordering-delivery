@@ -1,4 +1,3 @@
-import axios from "axios"
 import { useEffect, useState } from "react"
 import { useAuth } from "../util/AuthProvider"
 import type { Profile } from "../types/Profile"
@@ -6,6 +5,7 @@ import CustomerProfile from "./CustomerProfile"
 import RestaurantProfile from "./RestaurantProfile"
 import { useApi } from "../hooks/useApi"
 import AdminProfile from "./AdminProfile"
+import DriverProfile from "./DriverProfile"
 
 const ProfilePage = () => {
     const [ profile, setProfile ] = useState<Profile | null>(null)
@@ -33,6 +33,8 @@ const ProfilePage = () => {
             return  <RestaurantProfile profile={profile}/>
         case "ROLE_ADMIN":
             return <AdminProfile profile={profile}/>
+        case "ROLE_DRIVER":
+            return <DriverProfile profile={profile}/>
     }
 }
 

@@ -57,7 +57,6 @@ const Home = () => {
   return (
     <div id="home-container">
       <div>Most ordered meals</div>
-
       {
         products?(
       products?.map((product) => <Card key={product.id} {...product}></Card>)

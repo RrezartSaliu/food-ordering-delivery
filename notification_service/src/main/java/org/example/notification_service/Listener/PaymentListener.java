@@ -29,7 +29,9 @@ public class PaymentListener {
         }
 
         try {
-            String wsMessage = "{\"status\":\"" + status + "\"}";
+            String wsMessage =
+                    "{\"type\":\"payment\",\"status\":\"" + status + "\"}";
+
             webSocketHandler.sendToUser(paymentEvent.getUserId().toString(), wsMessage);
         } catch (Exception e) {
             e.printStackTrace();

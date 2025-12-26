@@ -4,18 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.ApiResponse;
 import org.example.authentication_service.Domain.DTO.AdminUserResponse;
 import org.example.authentication_service.Domain.DTO.CustomerUserResponse;
+import org.example.authentication_service.Domain.DTO.DriverUserResponse;
 import org.example.authentication_service.Domain.DTO.RestaurantUserResponse;
-import org.example.authentication_service.Domain.model.AdminProfile;
-import org.example.authentication_service.Domain.model.AppUser;
-import org.example.authentication_service.Domain.model.CustomerProfile;
-import org.example.authentication_service.Domain.model.RestaurantProfile;
+import org.example.authentication_service.Domain.model.*;
 import org.example.authentication_service.Mapper.AdminUserMapper;
 import org.example.authentication_service.Mapper.CustomerUserMapper;
+import org.example.authentication_service.Mapper.DriverUserMapper;
 import org.example.authentication_service.Mapper.RestaurantUserMapper;
-import org.example.authentication_service.Service.AdminUserService;
-import org.example.authentication_service.Service.CustomerUserService;
-import org.example.authentication_service.Service.RestaurantUserService;
-import org.example.authentication_service.Service.UserService;
+import org.example.authentication_service.Service.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +31,8 @@ public class UserController {
     private final RestaurantUserMapper restaurantUserMapper;
     private final AdminUserService adminUserService;
     private final AdminUserMapper adminUserMapper;
+    private final DriverUserService driverUserService;
+    private final DriverUserMapper driverUserMapper;
 
     @GetMapping("/get-user")
     public AppUser getUserByEmail(@RequestParam String email){
@@ -58,6 +56,14 @@ public class UserController {
             if (adminProfile != null) {
                 AdminUserResponse adminUserResponse = adminUserMapper.toResponse(adminProfile);
                 return ResponseEntity.ok(new ApiResponse<>(true, "admin profile", adminUserResponse));
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(false, "User not found", null));
+        }
+        else if (role.equals("ROLE_DRIVER")){
+            DriverProfile driverProfile =  driverUserService.findById(Long.valueOf(id));
+            if (driverProfile != null) {
+                DriverUserResponse driverUserResponse = driverUserMapper.toResponse(driverProfile);
+                return ResponseEntity.ok(new ApiResponse<>(true, "driver profile", driverUserResponse));
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(false, "User not found", null));
         }
@@ -94,5 +100,17 @@ public class UserController {
             restaurantUserResponses.add(restaurantUserMapper.toResponse(restaurantProfile));
         }
         return ResponseEntity.ok(new ApiResponse<>(true, "restaurants fetched", restaurantUserResponses));
+    }
+
+    @GetMapping("/get-driver-restaurant")
+    public ResponseEntity<ApiResponse<Long>> getDriverRestaurant(@RequestHeader("X-User-Role") String role, @RequestHeader("X-User-Id") String userId){
+        if (role.equals("ROLE_DRIVER")) {
+            Long restaurantId = driverUserService.findById(Long.valueOf(userId)).getRestaurantProfile().getId();
+            if (restaurantId != null) {
+                return ResponseEntity.ok(new ApiResponse<>(true, "restaurant ID",  restaurantId));
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(false, "User not found", null));
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ApiResponse<>(false, "not admin", null));
     }
 }
