@@ -20,4 +20,7 @@ public class PaymentEvent {
     private BigDecimal amount;
     private boolean paid;
     private String email;
+    private String address;
+    private Double longitude;
+    private Double latitude;
 }

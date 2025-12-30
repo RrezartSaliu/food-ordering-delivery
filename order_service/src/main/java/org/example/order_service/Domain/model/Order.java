@@ -22,4 +22,7 @@ public class Order {
     private OrderStatus orderStatus;
     private Long restaurantId;
     private Long driverId;
+    private Double longitude;
+    private Double latitude;
+    private String address;
 }

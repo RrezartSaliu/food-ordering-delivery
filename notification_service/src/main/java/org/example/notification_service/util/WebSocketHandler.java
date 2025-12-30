@@ -1,5 +1,7 @@
 package org.example.notification_service.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -11,8 +13,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@RequiredArgsConstructor
 public class WebSocketHandler extends TextWebSocketHandler {
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
+    private final ObjectMapper objectMapper;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
@@ -25,6 +29,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String userId = getUserIdFromSession(session);
         sessions.remove(userId);
     }
+
+    public void sendToUser(String userId, Object messageObject) throws IOException {
+        WebSocketSession session = sessions.get(userId);
+        if (session != null && session.isOpen()) {
+            String json = objectMapper.writeValueAsString(messageObject);
+            session.sendMessage(new TextMessage(json));
+        }
+    }
+
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {

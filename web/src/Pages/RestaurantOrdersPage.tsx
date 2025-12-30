@@ -25,6 +25,8 @@ const RestaurantOrdersPage = () => {
     if (!lastMessage) return;
 
     if (lastMessage.type === "order-created") {
+      console.log(lastMessage);
+      
       getOrderCreatedApi.get(lastMessage.orderId).then((res) => {
         if (!res?.data) return;
 

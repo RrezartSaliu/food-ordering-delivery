@@ -17,4 +17,9 @@ public class OrderResponse {
     private LocalDateTime orderDateTime;
     private Long userId;
     private OrderStatus orderStatus;
+    private Long driverId;
+    private Long restaurantId;
+    private String address;
+    private Double longitude;
+    private Double latitude;
 }

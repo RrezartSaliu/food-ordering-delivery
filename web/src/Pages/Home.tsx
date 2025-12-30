@@ -6,7 +6,7 @@ import { useAuth } from "../util/AuthProvider";
 import { useCart } from "../util/CartContext";
 
 const Home = () => {
-    const { token } = useAuth()
+    const { token, role } = useAuth()
   const [products, setProducts] = useState<Product[] | null>();
   const {cartCount, setCartCount} = useCart()
   const call = useApi<Product[]>(
@@ -14,6 +14,11 @@ const Home = () => {
   );
   const addItemApi = useApi<Product>(`${import.meta.env.VITE_API_URL}shopping-cart/add-item`, token)
   const itemsCountApi = useApi<number>(`${import.meta.env.VITE_API_URL}shopping-cart/get-shopping-cart-count`, token)
+  const { setDriverCartCount } = useCart()
+  const driverCartApi = useApi<number>(
+    `${import.meta.env.VITE_API_URL}order/driver-cart-count`,
+    token
+  )
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -30,6 +35,14 @@ const Home = () => {
         setCartCount(res.data)
     }
     )
+
+    if(role === "ROLE_DRIVER"){
+      driverCartApi.get().then(res=>{
+        if(res?.success){
+          setDriverCartCount(res.data)
+        }
+      })
+    }
   }, []);
 
   const addToCart = (id: number) => {

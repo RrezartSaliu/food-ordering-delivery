@@ -34,6 +34,8 @@ dependencies {
     implementation files('../shared-events/build/libs/shared-events-1.0-SNAPSHOT.jar')
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer:4.2.0'
 }
 
 tasks.named('test') {

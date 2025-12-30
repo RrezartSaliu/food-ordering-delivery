@@ -2,9 +2,8 @@ package org.example.order_service.Controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.ApiResponse;
-import org.example.PaymentEvent;
-import org.example.order_service.Domain.DTO.CardInfoRequest;
 import org.example.order_service.Domain.DTO.CartItemRequest;
+import org.example.order_service.Domain.DTO.CheckoutRequest;
 import org.example.order_service.Domain.DTO.ShoppingCartResponse;
 import org.example.order_service.Domain.model.ShoppingCart;
 import org.example.order_service.Mapper.ShoppingCartMapper;
@@ -12,7 +11,6 @@ import org.example.order_service.Producer.KafkaProducer;
 import org.example.order_service.Service.ShoppingCartService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -65,10 +63,10 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<ApiResponse<?>> checkout(@RequestHeader("X-User-Id") String userId, @RequestHeader("X-User-Role") String role, @RequestBody CardInfoRequest cardInfoRequest, @RequestHeader("X-User-Username") String username){
+    public ResponseEntity<ApiResponse<?>> checkout(@RequestHeader("X-User-Id") String userId, @RequestHeader("X-User-Role") String role, @RequestBody CheckoutRequest checkoutRequest, @RequestHeader("X-User-Username") String username){
         if (role.equals("ROLE_USER")){
             int total = shoppingCartService.getShoppingCart(Long.valueOf(userId)).getItems().stream().map(cartItem -> cartItem.getMenuItemSnapshot().getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()))).mapToInt(BigDecimal::intValue).sum();
-            try {kafkaProducer.sendCheckoutEvent(cardInfoRequest, total, username, Long.valueOf(userId));}
+            try {kafkaProducer.sendCheckoutEvent(checkoutRequest, total, username, Long.valueOf(userId));}
             catch (Exception e ){
                 System.out.println(e.getMessage());
             }

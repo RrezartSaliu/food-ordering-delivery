@@ -37,8 +37,19 @@ public class OrderController {
 
     @GetMapping("/get-order")
     public ResponseEntity<ApiResponse<OrderResponse>> getOrder(@RequestHeader("X-User-Id") String userId, @RequestParam Long orderId){
-        System.out.println("entering");
         Order order = orderService.findById(orderId);
+        Long uid = Long.valueOf(userId);
+
+        if (
+                !uid.equals(order.getDriverId()) &&
+                        !uid.equals(order.getUserId()) &&
+                        !uid.equals(order.getRestaurantId())
+        ) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(new ApiResponse<>(false, "invalid order", null));
+        }
+
         OrderResponse orderResponse = orderMapper.toResponse(order);
         return ResponseEntity.ok(new ApiResponse<>(true, "order retrieved", orderResponse));
     }
@@ -65,7 +76,7 @@ public class OrderController {
     @GetMapping("/waiting-orders-restaurant")
     public ResponseEntity<ApiResponse<List<OrderResponse>>> getWaitingOrdersOfRestaurant(@RequestHeader("X-User-Id") String userId, @RequestParam Long restaurantId){
         if (orderClient.isWorker(String.valueOf(restaurantId), userId)){
-            List<Order> waitingOrders = orderService.findAllByRestaurantIdAndOrderStatus(Long.valueOf(restaurantId), OrderStatus.WAITING);
+            List<Order> waitingOrders = orderService.findAllByRestaurantIdAndOrderStatus(restaurantId, OrderStatus.WAITING);
             List<OrderResponse> orderResponses = new ArrayList<>();
             for(Order order : waitingOrders){
                 orderResponses.add(orderMapper.toResponse(order));
@@ -75,4 +86,39 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, "Driver not in restaurant", null));
     }
 
+    @PostMapping("deliver-order")
+    public ResponseEntity<ApiResponse<OrderResponse>> deliverOrder (@RequestHeader("X-User-Id") String userId, @RequestHeader("X-User-Role") String role, @RequestParam Long orderId, @RequestParam Long restaurantId){
+        if(orderClient.isWorker(String.valueOf(restaurantId), userId) & role.equals("ROLE_DRIVER")) {
+            Order order = orderService.deliver(orderId, Long.valueOf(userId));
+            OrderResponse orderResponse = orderMapper.toResponse(order);
+            return ResponseEntity.ok(new ApiResponse<>(true, "order delivering", orderResponse));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, "Wrong driver or not driver", null));
+    }
+
+    @GetMapping("/driver-cart-count")
+    public ResponseEntity<ApiResponse<Integer>> driverCartCount (@RequestHeader("X-User-Id") String userId){
+        Integer cartCount = orderService.findAllByDriverIdAndOrderStatus(Long.valueOf(userId), OrderStatus.DELIVERING).size();
+        return ResponseEntity.ok(new ApiResponse<>(true, "orders of cart count", cartCount));
+    }
+
+    @GetMapping("/driver-cart")
+    public ResponseEntity<ApiResponse<List<OrderResponse>>> driverCart(@RequestHeader("X-User-Id") String userId){
+        List<Order> orders = orderService.findAllByDriverIdAndOrderStatus(Long.valueOf(userId), OrderStatus.DELIVERING);
+        List<OrderResponse> orderResponses = new ArrayList<>();
+        for(Order order : orders){
+            orderResponses.add(orderMapper.toResponse(order));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(true, "Driver cart orders", orderResponses));
+    }
+
+    @PostMapping("/order-delivered")
+    public ResponseEntity<ApiResponse<OrderResponse>> orderDelivered(@RequestHeader("X-User-Id") String userId, @RequestParam Long orderId, @RequestParam Long restaurantId){
+        if (orderClient.isWorker(String.valueOf(restaurantId), userId)) {
+            Order order = orderService.delivered(orderId);
+            OrderResponse orderResponse = orderMapper.toResponse(order);
+            return  ResponseEntity.ok(new ApiResponse<>(true, "order delivered", orderResponse));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, "Wrong driver or not driver", null));
+    }
 }

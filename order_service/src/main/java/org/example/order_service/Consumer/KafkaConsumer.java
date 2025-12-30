@@ -44,6 +44,6 @@ public class KafkaConsumer {
 
     @KafkaListener(topics = "successful-payment", groupId = "order-service-group")
     public void consumeSuccessfulPayment(PaymentEvent paymentEvent) {
-        orderService.create(paymentEvent.getAmount(),  paymentEvent.getUserId());
+        orderService.create(paymentEvent.getAmount(),  paymentEvent.getUserId(), paymentEvent.getLongitude(),  paymentEvent.getLatitude(), paymentEvent.getAddress());
     }
 }

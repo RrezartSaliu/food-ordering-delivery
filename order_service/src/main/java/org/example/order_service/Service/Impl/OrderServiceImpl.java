@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -31,7 +32,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public Order create(BigDecimal amount, Long userId) {
+    public Order create(BigDecimal amount, Long userId, Double longitude, Double latitude, String address) {
         ShoppingCart cart = shoppingCartService.getShoppingCart(userId);
 
         List<OrderItem> orderItems = cart.getItems().stream().map(item -> {
@@ -49,6 +50,9 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatus.WAITING);
         order.setOrderDateTime(LocalDateTime.now());
         order.setRestaurantId(order.getItems().stream().findFirst().get().getMenuItemSnapshot().getRestaurantId());
+        order.setLatitude(latitude);
+        order.setLongitude(longitude);
+        order.setAddress(address);
 
         orderItems.forEach(oi -> oi.setOrder(order));
 
@@ -67,10 +71,17 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public Order deliver(Long id) {
-        Order order = this.findById(id);
-        order.setOrderStatus(OrderStatus.DELIVERING);
-        return orderRepository.save(order);
+    @Transactional
+    public Order deliver(Long id, Long driverId) {
+        Optional<Order> order = orderRepository.findByIdForUpdate(id);
+        order.ifPresent(order1 -> {
+            if(order1.getDriverId() != null) {
+                throw new IllegalStateException("Order already taken");
+            }
+            order1.setOrderStatus(OrderStatus.DELIVERING);
+            order1.setDriverId(driverId);
+        });
+        return order.orElse(null);
     }
 
     @Override
@@ -84,14 +95,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public Order delivered(Long id) {
         Order order = this.findById(id);
         order.setOrderStatus(OrderStatus.DELIVERED);
-        return orderRepository.save(order);
+        return order;
     }
 
     @Override
     public List<Order> findAllByRestaurantIdAndOrderStatus(Long restaurantId, OrderStatus orderStatus){
         return orderRepository.findAllByRestaurantIdAndOrderStatusOrderByOrderDateTimeDesc(restaurantId, orderStatus);
+    }
+
+    @Override
+    public List<Order> findAllByDriverIdAndOrderStatus(Long driverId, OrderStatus orderStatus) {
+        return orderRepository.findAllByDriverIdAndOrderStatusOrderByOrderDateTimeDesc(driverId, orderStatus);
     }
 }

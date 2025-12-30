@@ -17,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/auth")
@@ -74,5 +76,10 @@ public class AuthController {
     @GetMapping("/{restaurantId}/workers/{userId}/exists")
     public boolean isWorker(@PathVariable Long restaurantId, @PathVariable Long userId) {
         return driverUserService.findAllByRestaurantProfile_Id(restaurantId).stream().map(DriverProfile::getId).toList().contains(userId);
+    }
+
+    @GetMapping("/drivers/{restaurantId}")
+    public List<Long> driversIds (@PathVariable Long restaurantId) {
+        return driverUserService.findAllByRestaurantProfile_Id(restaurantId).stream().map(DriverProfile::getId).toList();
     }
 }

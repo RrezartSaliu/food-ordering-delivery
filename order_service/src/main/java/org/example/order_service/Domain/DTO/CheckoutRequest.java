@@ -7,9 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CardInfoRequest {
+public class CheckoutRequest {
     private String firstName;
     private String lastName;
     private String cardNumber;
     private String cvv;
+    private String address;
+    private Double latitude;
+    private Double longitude;
 }

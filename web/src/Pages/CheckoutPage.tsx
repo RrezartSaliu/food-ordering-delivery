@@ -20,6 +20,29 @@ const CheckoutPage = () => {
   const [paymentMade, setPaymentMade] = useState<boolean>(false);
   const [paymentMessage, setPaymentMessage] = useState<string>("");
   const { lastMessage } = useWebSocket();
+  const [currentLocation, setCurrentLocation] = useState(false);
+  const [coords, setCoords] = useState<GeolocationCoordinates | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  const requestLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation not supported");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCoords(position.coords);
+        setLocationError(null);
+      },
+      (error) => {
+        setLocationError("Location permission denied");
+        setCurrentLocation(false);
+      },
+      { enableHighAccuracy: false }
+    );
+  };
+
 
   useEffect(() => {
     if (!lastMessage) return;
@@ -32,6 +55,11 @@ const CheckoutPage = () => {
   }, [lastMessage]);
 
   const checkout = () => {
+    if (coords === null)
+    {
+      alert("no coordinates")
+      return
+    }
     const cardNum = Number(cardNumber);
     const cvvNum = Number(cvv);
 
@@ -48,6 +76,9 @@ const CheckoutPage = () => {
         lastName: lastName,
         cardNumber: cardNumber,
         cvv: cvv,
+        longitude: coords.longitude,
+        latitude: coords.latitude,
+        address: "Current user location"
       };
       checkoutApi.post("", body);
       setProcessingPayment(true);
@@ -97,7 +128,30 @@ const CheckoutPage = () => {
             onChange={(e) => setCvv(e.target.value)}
           ></input>
         </div>
-        <button onClick={() => checkout()}>Confirm</button>
+        <div>
+          <label>use my current location</label>
+          <input
+            type="checkbox"
+            checked={currentLocation}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setCurrentLocation(checked)
+              
+              if (checked) {
+                requestLocation();
+              } else {
+                setCoords(null);
+              }
+            }}
+          />
+        </div>
+        {/* <div>
+          <label>Address</label>
+          <input type="text" disabled={currentLocation}/>
+        </div> */}
+        <button onClick={() => {
+          checkout()
+        }}>Confirm</button>
       </>
     );
   };

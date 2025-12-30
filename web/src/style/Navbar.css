@@ -116,3 +116,9 @@
 .tabs:hover {
     background-color: #ee5656;
 }
+
+.car-icon{
+    font-size: 2em;
+    margin-right: 0.5em;
+    cursor: pointer;
+}

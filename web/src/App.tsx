@@ -17,6 +17,8 @@ import UserOrdersPage from "./Pages/UserOrdersPage";
 import RestaurantItemsManagementPage from "./Pages/RestaurantItemsManagementPage";
 import RestaurantOrdersPage from "./Pages/RestaurantOrdersPage";
 import DriverOrdersPage from "./Pages/DriverOrdersPage";
+import DriverCartPage from "./Pages/DriverCartPage";
+import OrderDetailPage from "./Pages/OrderDetailPage";
 
 function App() {
   return (
@@ -98,6 +100,19 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/driver-cart"
+                element={
+                  <ProtectedRoute allowedRoles={["ROLE_DRIVER"]}>
+                    <DriverCartPage/>
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/order/:id" element={
+                <ProtectedRoute allowedRoles={["ROLE_DRIVER", "ROLE_USER", "ROLE_ADMIN", "ROLE_RESTAURANT"]}>
+                  <OrderDetailPage/>
+                </ProtectedRoute>
+              }/>
             </Routes>
           </CartProvider>
         </BrowserRouter>
