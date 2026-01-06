@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
 
 @FeignClient(name = "auth-service", url = "http://auth-service:8080")
-public interface NotificationClient {
+public interface AuthClient {
     @GetMapping("/auth/drivers/{restaurantId}")
     List<Long> driversIds(@PathVariable String restaurantId);
 }

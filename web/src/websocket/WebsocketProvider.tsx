@@ -21,44 +21,78 @@ export const WebSocketProvider = ({ children }: { children: React.ReactNode }) =
   const { token } = useAuth();
   const wsRef = useRef<WebSocket | null>(null);
   const [lastMessage, setLastMessage] = useState<WSMessage | null>(null);
+  const isConnectedRef = useRef(false);
+  const queueRef = useRef<any[]>([]);
+
 
   useEffect(() => {
-    if (!token || wsRef.current) return;
+  console.log(
+    "WS effect",
+    "token:", !!token,
+    "wsRef:", wsRef.current?.readyState
+  );
 
-    const decoded: any = jwtDecode(token);
-    const userId = decoded.id;
+  // logout cleanup
+  if (!token) {
+    queueRef.current = [];
+    isConnectedRef.current = false;
+    wsRef.current?.close();
+    wsRef.current = null;
+    return;
+  }
 
-    wsRef.current = new WebSocket(`ws://localhost:8080/ws?userId=${userId}`);
+  // already connected or connecting
+  if (
+    wsRef.current &&
+    (wsRef.current.readyState === WebSocket.OPEN ||
+     wsRef.current.readyState === WebSocket.CONNECTING)
+  ) {
+    return;
+  }
 
-    wsRef.current.onopen = () => {
-      console.log("WS connected ✅");
-    };
+  const decoded: any = jwtDecode(token);
+  const userId = decoded.id;
 
-    wsRef.current.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setLastMessage(data);
-    };
+  console.log("Creating WebSocket for user", userId);
 
-    wsRef.current.onclose = () => {
-      console.log("WS disconnected ❌");
-      wsRef.current = null;
-    };
+  wsRef.current = new WebSocket(
+    `ws://localhost:8080/ws?userId=${userId}`
+  );
 
-    wsRef.current.onerror = (err) => {
-      console.error("WS error", err);
-    };
+  wsRef.current.onopen = () => {
+    console.log("WS connected ✅");
+    isConnectedRef.current = true;
 
-    return () => {
-      wsRef.current?.close();
-      wsRef.current = null;
-    };
-  }, [token]);
+    queueRef.current.forEach(msg =>
+      wsRef.current?.send(JSON.stringify(msg))
+    );
+    queueRef.current = [];
+  };
+
+  wsRef.current.onmessage = event => {
+    setLastMessage(JSON.parse(event.data));
+  };
+
+  wsRef.current.onclose = () => {
+    console.log("WS disconnected ❌");
+    isConnectedRef.current = false;
+    wsRef.current = null;
+  };
+
+  wsRef.current.onerror = err => {
+    console.error("WS error", err);
+  };
+}, [token]);
+
 
   const send = (data: any) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(data));
-    }
-  };
+  if (wsRef.current && isConnectedRef.current) {
+    wsRef.current.send(JSON.stringify(data));
+  } else {
+    queueRef.current.push(data);
+  }
+};
+
 
   return (
     <WebSocketContext.Provider value={{ send, lastMessage }}>

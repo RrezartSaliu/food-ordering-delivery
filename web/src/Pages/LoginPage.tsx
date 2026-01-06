@@ -29,6 +29,7 @@ const LoginPage = () => {
     if (res?.data) {
     setToken(res.data); // update context
     console.log(res.message)
+
     navigate("/"); // redirect to home
     }
 

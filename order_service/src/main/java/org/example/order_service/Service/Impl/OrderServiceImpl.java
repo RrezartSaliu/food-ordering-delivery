@@ -3,6 +3,7 @@ package org.example.order_service.Service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.OrderCreatedEvent;
+import org.example.OrderDeliveredEvent;
 import org.example.order_service.Config.RabbitConfig;
 import org.example.order_service.Domain.model.*;
 import org.example.order_service.Repository.OrderRepository;
@@ -99,6 +100,11 @@ public class OrderServiceImpl implements OrderService {
     public Order delivered(Long id) {
         Order order = this.findById(id);
         order.setOrderStatus(OrderStatus.DELIVERED);
+        OrderDeliveredEvent orderDeliveredEvent = new OrderDeliveredEvent();
+        orderDeliveredEvent.setOrderId(order.getId());
+        orderDeliveredEvent.setRestaurantId(order.getItems().stream().findFirst().get().getMenuItemSnapshot().getRestaurantId());
+        orderDeliveredEvent.setUserId(order.getUserId());
+        rabbitTemplate.convertAndSend(RabbitConfig.ORDER_DELIVERED_QUEUE, orderDeliveredEvent);
         return order;
     }
 

@@ -19,11 +19,15 @@ import RestaurantOrdersPage from "./Pages/RestaurantOrdersPage";
 import DriverOrdersPage from "./Pages/DriverOrdersPage";
 import DriverCartPage from "./Pages/DriverCartPage";
 import OrderDetailPage from "./Pages/OrderDetailPage";
+import { DriverDeliveryProvider} from "./util/DriverDeliveryContext";
+import { DriverLocationTracker } from "./components/DriverLocationTracker";
 
 function App() {
   return (
     <AuthProvider>
+      <DriverDeliveryProvider>
       <WebSocketProvider>
+        <DriverLocationTracker/>
         <BrowserRouter>
           <CartProvider>
             <Navbar />
@@ -117,6 +121,7 @@ function App() {
           </CartProvider>
         </BrowserRouter>
       </WebSocketProvider>
+      </DriverDeliveryProvider>
     </AuthProvider>
   );
 }

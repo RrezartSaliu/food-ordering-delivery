@@ -25,4 +25,8 @@ public class RabbitConfig {
     @Bean Queue orderCreatedQueue() {
         return new Queue("order.queue", true);
     }
+
+    @Bean Queue orderDeliveredQueue() {
+        return new Queue("order.delivered.queue", true);
+    }
 }

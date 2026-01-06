@@ -4,6 +4,7 @@ import type { Order } from "../types/Order"
 import { useAuth } from "../util/AuthProvider"
 import type { Toast } from "../types/Toast"
 import { useCart } from "../util/CartContext"
+import { useDriverDelivery } from "../util/DriverDeliveryContext"
 
 const DriverCartPage = () =>{
     const { token } = useAuth()
@@ -11,10 +12,12 @@ const DriverCartPage = () =>{
     const deliveredOrderApi = useApi<Order |null>(`${import.meta.env.VITE_API_URL}order/order-delivered?`, token)
     const [ orderDeliveredToast, setOrderDeliveredToast ] = useState<Toast |null>(null)
     const {driverCartCount,setDriverCartCount} = useCart()
+    const { stopDelivery } = useDriverDelivery()
 
     useEffect(()=>{
         driverCartApi.get()
     },[])
+
 
     const delivered = async (orderId: number, restaurantId: number)=> {
         const res = await deliveredOrderApi.post(`orderId=${orderId}&restaurantId=${restaurantId}`,{})
@@ -31,6 +34,7 @@ const DriverCartPage = () =>{
             }
             setOrderDeliveredToast({message: res.message, success: res.success})
             setDriverCartCount(driverCartCount-1)
+            stopDelivery(orderId)
             setTimeout(() => {
                 setOrderDeliveredToast(null);
             }, 4000);

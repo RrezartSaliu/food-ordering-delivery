@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfig {
     public static final String ORDER_QUEUE = "order.queue";
+    public static final String ORDER_DELIVERED_QUEUE = "order.delivered.queue";
 
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
@@ -17,5 +18,10 @@ public class RabbitConfig {
     @Bean
     public Queue orderQueue() {
         return new Queue(ORDER_QUEUE, true);
+    }
+
+    @Bean
+    public Queue orderDeliveredQueue() {
+        return new Queue(ORDER_DELIVERED_QUEUE, true);
     }
 }
